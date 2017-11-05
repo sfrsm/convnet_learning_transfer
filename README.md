@@ -1,1 +1,1 @@
-# convnet_learning_transfer
+# convnet_transfer_learning
