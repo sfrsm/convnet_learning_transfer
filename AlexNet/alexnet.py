@@ -3,15 +3,15 @@ import caffe
 import tensorflow as tf
 import urllib2
 
-class GoogLeNet:
+class AlexNet:
     def __init__(self):
         caffe.set_mode_cpu()
 
         self.base_dir = '/home/samuel/caffe/'
-        model_dir = 'models/bvlc_googlenet/'
+        model_dir = 'models/bvlc_reference_caffenet/'
 
         model_def = self.base_dir + model_dir + 'deploy.prototxt'
-        model_weights = self.base_dir + model_dir + 'bvlc_googlenet.caffemodel'
+        model_weights = self.base_dir + model_dir + 'bvlc_reference_caffenet.caffemodel'
 
         self.net = caffe.Net(model_def,  # defines the structure of the model
                         model_weights,  # contains the trained weights
@@ -117,9 +117,7 @@ class GoogLeNet:
 
 
 if __name__ == "__main__":
-    googlenet = GoogLeNet()
-    # googlenet.run('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjOqKI0kZG7nIV2w7AFRWfPUGiqeM0J26TbCp8irR1jZiNG556')
-    #first, list = googlenet.run('https://vetstreet.brightspotcdn.com/dims4/default/a1a90c7/2147483647/thumbnail/180x180/quality/90/?url=https%3A%2F%2Fvetstreet-brightspot.s3.amazonaws.com%2F0d%2Ff2e4c0b3a611e092fe0050568d634f%2Ffile%2Fhub-cats-senior.jpg')
-    first, list = googlenet.run('https://c1.staticflickr.com/3/2934/14439122755_f967f0bae5_z.jpg')
+    googlenet = AlexNet()
+    first, list = googlenet.run('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjOqKI0kZG7nIV2w7AFRWfPUGiqeM0J26TbCp8irR1jZiNG556')
     print "first:", first
     print "list:" , list

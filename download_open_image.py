@@ -11,9 +11,9 @@ with open('/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/tes
             firstline = False
             continue
         count += 1
-        if (count < 41051):
+        if (count < 106771):
             continue
-        #print "count:", count
+        print "count:", count
         #print "teste: ", '/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/images/' + str(row[10].split('/')[-1])
         if (row[10]):
             urllib.urlretrieve(row[10], '/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/images/' + str(row[10].split('/')[-1]))

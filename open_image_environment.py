@@ -1,7 +1,13 @@
 import csv
 import GoogLeNet.googlenet
+import AlexNet.alexnet
+import ResNet.resnet
+import SquezeNet.squezenet
 
 googlenet = GoogLeNet.googlenet.GoogLeNet()
+alexnet = AlexNet.alexnet.AlexNet()
+resnet = ResNet.resnet.SquezeNet
+squezenet = SquezeNet.squezenet
 
 ofile = open('googlenet_openimage.csv', 'wb')
 writer = csv.writer(ofile, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
@@ -18,6 +24,7 @@ with open('/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/tes
         print "count:", count
         if (row[10]):
             first, list = googlenet.run(row[10])
+            first, list = alexnet(row[10])
         else:
             continue
         if (first or list):
