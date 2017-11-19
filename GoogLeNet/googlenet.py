@@ -1,7 +1,8 @@
 import numpy as np
 import caffe
 import tensorflow as tf
-import urllib2
+
+#bvlc_googlenet model read.me
 
 class GoogLeNet:
     def __init__(self):
@@ -33,13 +34,19 @@ class GoogLeNet:
         self.transformer.set_raw_scale('data', 255)  # rescale from [0, 1] to [0, 255]
         self.transformer.set_channel_swap('data', (2, 1, 0))  # swap channels from RGB to BGR
 
-    def exists(self, url):
-        try:
-            f = urllib2.urlopen(urllib2.Request(url))
-            deadLinkFound = False
-        except:
-            deadLinkFound = True
-        return deadLinkFound
+    def exists(self, url, is_path):
+        if (is_path):
+            if Path(url).is_file():
+                return False
+            else:
+                return True
+        else:
+            try:
+                f = urllib2.urlopen(urllib2.Request(url))
+                deadLinkFound = False
+            except:
+                deadLinkFound = True
+            return deadLinkFound
 
 
     def run(self, imagefile):
@@ -50,14 +57,10 @@ class GoogLeNet:
         #                                3,  # 3-channel (BGR) images
         #                                224, 224)  # image size is 224x224
 
-        if (self.exists(imagefile)):
-            return
-
         #####################
         # carregando imagem #
         #####################
         # image = caffe.io.load_image(base_dir + 'examples/images/cat.jpg')
-        print "imagefile: " + str(imagefile)
         image = caffe.io.load_image(imagefile)
         transformed_image = self.transformer.preprocess('data', image)
         # plt.imshow(image)

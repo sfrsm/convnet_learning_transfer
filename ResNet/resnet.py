@@ -3,6 +3,8 @@ import caffe
 import tensorflow as tf
 import urllib2
 
+# https://github.com/KaimingHe/deep-residual-networks
+
 class ResNet:
     def __init__(self):
         caffe.set_mode_cpu()
@@ -50,14 +52,10 @@ class ResNet:
         #                                3,  # 3-channel (BGR) images
         #                                224, 224)  # image size is 224x224
 
-        if (self.exists(imagefile)):
-            return
-
         #####################
         # carregando imagem #
         #####################
         # image = caffe.io.load_image(base_dir + 'examples/images/cat.jpg')
-        print "imagefile: " + str(imagefile)
         image = caffe.io.load_image(imagefile)
         transformed_image = self.transformer.preprocess('data', image)
         # plt.imshow(image)
@@ -91,30 +89,6 @@ class ResNet:
         # print 'probabilities and labels:', zip(output_prob[top_inds], labels[top_inds])
 
         return labels[output_prob.argmax()], zip(output_prob[top_inds], labels[top_inds])
-
-    def LoadLabelMap(self):
-      """Load index->mid and mid->display name maps.
-    
-      Args:
-        labelmap_path: path to the file with the list of mids, describing
-            predictions.
-        dict_path: path to the dict.csv that translates from mids to display names.
-      Returns:
-        labelmap: an index to mid list
-        label_dict: mid to display name dictionary
-      """
-      labelmap_path = '/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/classes-trainable.txt'
-      dict_path = '/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/class-descriptions.csv'
-
-      labelmap = [line.rstrip() for line in tf.gfile.GFile(labelmap_path)]
-
-      label_dict = {}
-      for line in tf.gfile.GFile(dict_path):
-        words = [word.strip(' "\n') for word in line.split(',', 1)]
-        label_dict[words[0]] = words[1]
-
-      return labelmap, label_dict
-
 
 if __name__ == "__main__":
     googlenet = ResNet()
