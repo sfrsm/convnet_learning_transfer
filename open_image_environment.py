@@ -6,6 +6,7 @@ import GoogLeNet.googlenet
 import AlexNet.alexnet
 import ResNet.resnet
 import SquezeNet.squezenet
+from open_image_by_class import class_names
 
 
 def file_exists(url, is_path):
@@ -45,8 +46,9 @@ def calc_results(class_name, first, list):
 ########
 if __name__ == "__main__":
 
-    class_names = ['car', 'airplane', 'truck', 'dog', 'cat', 'horse', 'ship', 'bird', 'bicycle', 'cow']
-
+    class_names = ['car']
+    # 'cow', 'ship', 'cat', 'car'
+#done: 'bicycle', 'bird', 'truck', 'horse', 'airplane', 'dog', 'cow', 'ship', 'cat',
     googlenet = GoogLeNet.googlenet.GoogLeNet()
     alexnet = AlexNet.alexnet.AlexNet()
     resnet = ResNet.resnet.ResNet()
@@ -59,6 +61,7 @@ if __name__ == "__main__":
 
         image_path = '/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/images/'
 
+        print "Class: ", class_name
         count = 0
         with open('/home/samuel/PycharmProjects/convnet_transfer_learning/openimage_class_' + class_name + '.csv',
                   'rb') as f:
@@ -74,10 +77,14 @@ if __name__ == "__main__":
                         resnet_first, resnet_list = resnet.run(image_file)
                         squezenet_first, squezenet_list = squezenet.run(image_file)
 
-                        googlenet_top1, googlenet_top5 = calc_results(class_name, googlenet_first, googlenet_list)
-                        alexnet_top1, alexnet_top5 = calc_results(class_name, alexnet_first, alexnet_list)
-                        resnet_top1, resnet_top5 = calc_results(class_name, resnet_first, resnet_list)
-                        squezenet_top1, squezenet_top5 = calc_results(class_name, squezenet_first, squezenet_list)
+                        if (googlenet_first != -1):
+                            googlenet_top1, googlenet_top5 = calc_results(class_name, googlenet_first, googlenet_list)
+                        if (alexnet_first != -1):
+                            alexnet_top1, alexnet_top5 = calc_results(class_name, alexnet_first, alexnet_list)
+                        if (resnet_first != -1):
+                            resnet_top1, resnet_top5 = calc_results(class_name, resnet_first, resnet_list)
+                        if (squezenet_first != -1):
+                            squezenet_top1, squezenet_top5 = calc_results(class_name, squezenet_first, squezenet_list)
 
                         row_result = [row[0], row[1], row[3],
                                       googlenet_list, googlenet_top1, googlenet_top5,

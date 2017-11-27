@@ -45,50 +45,52 @@ class SquezeNet:
 
 
     def run(self, imagefile):
+        try:
+            # set the size of the input (we can skip this if we're happy
+            #  with the default; we can also change it later, e.g., for different batch sizes)
+            # self.net.blobs['data'].reshape(50,  # batch size
+            #                                3,  # 3-channel (BGR) images
+            #                                224, 224)  # image size is 224x224
 
-        # set the size of the input (we can skip this if we're happy
-        #  with the default; we can also change it later, e.g., for different batch sizes)
-        # self.net.blobs['data'].reshape(50,  # batch size
-        #                                3,  # 3-channel (BGR) images
-        #                                224, 224)  # image size is 224x224
+            #####################
+            # carregando imagem #
+            #####################
+            # image = caffe.io.load_image(base_dir + 'examples/images/cat.jpg')
+            image = caffe.io.load_image(imagefile)
+            transformed_image = self.transformer.preprocess('data', image)
+            # plt.imshow(image)
 
-        #####################
-        # carregando imagem #
-        #####################
-        # image = caffe.io.load_image(base_dir + 'examples/images/cat.jpg')
-        image = caffe.io.load_image(imagefile)
-        transformed_image = self.transformer.preprocess('data', image)
-        # plt.imshow(image)
+            #################
+            # classificacao #
+            #################
+            # copy the image data into the memory allocated for the net
+            self.net.blobs['data'].data[...] = transformed_image
 
-        #################
-        # classificacao #
-        #################
-        # copy the image data into the memory allocated for the net
-        self.net.blobs['data'].data[...] = transformed_image
+            ### perform classification
+            output = self.net.forward()
 
-        ### perform classification
-        output = self.net.forward()
+            output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
 
-        output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
+            # print 'predicted class is:', output_prob.argmax()
 
-        # print 'predicted class is:', output_prob.argmax()
+            #################################
+            # carregando labels da ImageNet #
+            #################################
+            # load ImageNet labels
+            labels_file = self.base_dir + 'data/ilsvrc12/synset_words.txt'
 
-        #################################
-        # carregando labels da ImageNet #
-        #################################
-        # load ImageNet labels
-        labels_file = self.base_dir + 'data/ilsvrc12/synset_words.txt'
+            labels = np.loadtxt(labels_file, str, delimiter='\t')
 
-        labels = np.loadtxt(labels_file, str, delimiter='\t')
+            # print 'output label:', labels[output_prob.argmax()]
 
-        # print 'output label:', labels[output_prob.argmax()]
+            # sort top five predictions from softmax output
+            top_inds = output_prob.argsort()[::-1][:5]  # reverse sort and take five largest items
 
-        # sort top five predictions from softmax output
-        top_inds = output_prob.argsort()[::-1][:5]  # reverse sort and take five largest items
+            # print 'probabilities and labels:', zip(output_prob[top_inds], labels[top_inds])
 
-        # print 'probabilities and labels:', zip(output_prob[top_inds], labels[top_inds])
-
-        return labels[output_prob.argmax()], zip(output_prob[top_inds], labels[top_inds])
+            return labels[output_prob.argmax()], zip(output_prob[top_inds], labels[top_inds])
+        except:
+            return -1, -1
 
 if __name__ == "__main__":
     googlenet = SquezeNet()

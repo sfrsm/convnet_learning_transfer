@@ -1,6 +1,7 @@
 import numpy as np
 import caffe
 import tensorflow as tf
+import urllib2
 
 #bvlc_googlenet model read.me
 
@@ -50,50 +51,52 @@ class GoogLeNet:
 
 
     def run(self, imagefile):
+        try:
+            # set the size of the input (we can skip this if we're happy
+            #  with the default; we can also change it later, e.g., for different batch sizes)
+            # self.net.blobs['data'].reshape(50,  # batch size
+            #                                3,  # 3-channel (BGR) images
+            #                                224, 224)  # image size is 224x224
 
-        # set the size of the input (we can skip this if we're happy
-        #  with the default; we can also change it later, e.g., for different batch sizes)
-        # self.net.blobs['data'].reshape(50,  # batch size
-        #                                3,  # 3-channel (BGR) images
-        #                                224, 224)  # image size is 224x224
+            #####################
+            # carregando imagem #
+            #####################
+            # image = caffe.io.load_image(base_dir + 'examples/images/cat.jpg')
+            image = caffe.io.load_image(imagefile)
+            transformed_image = self.transformer.preprocess('data', image)
+            # plt.imshow(image)
 
-        #####################
-        # carregando imagem #
-        #####################
-        # image = caffe.io.load_image(base_dir + 'examples/images/cat.jpg')
-        image = caffe.io.load_image(imagefile)
-        transformed_image = self.transformer.preprocess('data', image)
-        # plt.imshow(image)
+            #################
+            # classificacao #
+            #################
+            # copy the image data into the memory allocated for the net
+            self.net.blobs['data'].data[...] = transformed_image
 
-        #################
-        # classificacao #
-        #################
-        # copy the image data into the memory allocated for the net
-        self.net.blobs['data'].data[...] = transformed_image
+            ### perform classification
+            output = self.net.forward()
 
-        ### perform classification
-        output = self.net.forward()
+            output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
 
-        output_prob = output['prob'][0]  # the output probability vector for the first image in the batch
+            # print 'predicted class is:', output_prob.argmax()
 
-        # print 'predicted class is:', output_prob.argmax()
+            #################################
+            # carregando labels da ImageNet #
+            #################################
+            # load ImageNet labels
+            labels_file = self.base_dir + 'data/ilsvrc12/synset_words.txt'
 
-        #################################
-        # carregando labels da ImageNet #
-        #################################
-        # load ImageNet labels
-        labels_file = self.base_dir + 'data/ilsvrc12/synset_words.txt'
+            labels = np.loadtxt(labels_file, str, delimiter='\t')
 
-        labels = np.loadtxt(labels_file, str, delimiter='\t')
+            # print 'output label:', labels[output_prob.argmax()]
 
-        # print 'output label:', labels[output_prob.argmax()]
+            # sort top five predictions from softmax output
+            top_inds = output_prob.argsort()[::-1][:5]  # reverse sort and take five largest items
 
-        # sort top five predictions from softmax output
-        top_inds = output_prob.argsort()[::-1][:5]  # reverse sort and take five largest items
+            # print 'probabilities and labels:', zip(output_prob[top_inds], labels[top_inds])
 
-        # print 'probabilities and labels:', zip(output_prob[top_inds], labels[top_inds])
-
-        return labels[output_prob.argmax()], zip(output_prob[top_inds], labels[top_inds])
+            return labels[output_prob.argmax()], zip(output_prob[top_inds], labels[top_inds])
+        except:
+            return -1, -1
 
     def LoadLabelMap(self):
       """Load index->mid and mid->display name maps.
@@ -123,6 +126,7 @@ if __name__ == "__main__":
     googlenet = GoogLeNet()
     # googlenet.run('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjOqKI0kZG7nIV2w7AFRWfPUGiqeM0J26TbCp8irR1jZiNG556')
     #first, list = googlenet.run('https://vetstreet.brightspotcdn.com/dims4/default/a1a90c7/2147483647/thumbnail/180x180/quality/90/?url=https%3A%2F%2Fvetstreet-brightspot.s3.amazonaws.com%2F0d%2Ff2e4c0b3a611e092fe0050568d634f%2Ffile%2Fhub-cats-senior.jpg')
-    first, list = googlenet.run('https://c1.staticflickr.com/3/2934/14439122755_f967f0bae5_z.jpg')
+    # first, list = googlenet.run('https://c1.staticflickr.com/3/2934/14439122755_f967f0bae5_z.jpg')
+    first, list = googlenet.run('/home/samuel/PycharmProjects/convnet_transfer_learning/open_image/images/4399852181_a3d116f71f_z.jpg')
     print "first:", first
     print "list:" , list
